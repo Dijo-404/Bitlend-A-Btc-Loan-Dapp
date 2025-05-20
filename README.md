@@ -66,3 +66,14 @@ Whether you're a crypto newbie or a DeFi power user, **Bitcoin Loan dApp** is en
 
 Fork it. Test it. Improve it. Or deploy your own version.
 Join us in creating a **decentralized financial system** where **trust is built into code**.
+
+---
+## 👬🏻 Team.
+
+i) Gokul V 
+
+ii) Renee Matthew George Kingsley
+
+iii) Dijo Benelen
+
+iv) Divesh Kumar
