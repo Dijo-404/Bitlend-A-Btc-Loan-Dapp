@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,12 @@ interface WalletModalProps {
 export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const { connect, isConnecting } = useUserWallet();
   const [, setLocation] = useLocation();
+  const [isMetaMaskInstalled, setIsMetaMaskInstalled] = useState(false);
+
+  useEffect(() => {
+    // Check if MetaMask is installed
+    setIsMetaMaskInstalled(typeof window !== 'undefined' && typeof window.ethereum !== 'undefined');
+  }, []);
 
   const handleConnect = async (providerType: string) => {
     try {
@@ -22,6 +28,15 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
       setLocation('/dashboard');
     } catch (error) {
       console.error(`Error connecting to ${providerType}:`, error);
+    }
+  };
+
+  const handleMetaMaskClick = () => {
+    if (isMetaMaskInstalled) {
+      handleConnect('MetaMask');
+    } else {
+      // Open MetaMask download page
+      window.open('https://metamask.io/download/', '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -39,12 +54,14 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
           <Button 
             variant="outline" 
             className="w-full justify-between p-4 text-base font-normal h-auto"
-            onClick={() => handleConnect('MetaMask')}
+            onClick={handleMetaMaskClick}
             disabled={isConnecting}
           >
             <div className="flex items-center">
               <BitcoinIcon className="text-primary text-2xl mr-3" />
-              <span className="font-medium">MetaMask</span>
+              <span className="font-medium">
+                {isMetaMaskInstalled ? 'MetaMask' : 'Install MetaMask'}
+              </span>
             </div>
             <i className="ri-arrow-right-line"></i>
           </Button>
