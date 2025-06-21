@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BitcoinIcon } from '@/components/ui/bitcoin-icon';
 import { formatBTC, getLoanStatusBadgeClass, getLoanTypeClass } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 interface LoanCardProps {
   loan: Loan;
@@ -36,55 +37,81 @@ export function LoanCard({
   const isBorrowing = loan.type === 'request';
 
   return (
-    <Card className="h-full hover:shadow-md transition-shadow duration-200 cursor-pointer" onClick={handleViewDetails}>
-      <CardContent className="p-5">
-        <div className="flex justify-between items-start mb-3">
-          <div>
-            <span className={`text-xs py-1 px-2 rounded-full font-medium ${typeClass}`}>
-              {isBorrowing ? 'Borrowed' : 'Lent'}
-            </span>
-            <h3 className="font-semibold mt-2 flex items-center">
-              <BitcoinIcon className="text-primary mr-1" size={18} />
-              <span>{formatBTC(loan.amount)}</span>
-            </h3>
+    <motion.div
+      whileHover={{ y: -2, scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    >
+      <Card className="h-full hover:shadow-lg transition-all duration-300 cursor-pointer border-border hover:border-primary/30 bg-gradient-to-br from-card to-card/50" onClick={handleViewDetails}>
+        <CardContent className="p-6">
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <motion.span 
+                className={`text-xs py-1.5 px-3 rounded-full font-medium ${typeClass} shadow-sm`}
+                whileHover={{ scale: 1.05 }}
+              >
+                {isBorrowing ? 'Borrowed' : 'Lent'}
+              </motion.span>
+              <motion.h3 
+                className="font-semibold mt-3 flex items-center text-lg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+              >
+                <BitcoinIcon className="text-primary mr-2" size={20} />
+                <span>{formatBTC(loan.amount)}</span>
+              </motion.h3>
+            </div>
+            <div className="text-right">
+              <p className="text-muted-foreground text-sm">Status</p>
+              <motion.p 
+                className={`text-xs py-1.5 px-3 rounded-full font-medium inline-block ${statusClass} shadow-sm`}
+                whileHover={{ scale: 1.05 }}
+              >
+                {loan.status.charAt(0).toUpperCase() + loan.status.slice(1)}
+              </motion.p>
+            </div>
           </div>
-          <div className="text-right">
-            <p className="text-muted-foreground text-sm">Interest Rate</p>
-            <p className="font-semibold text-primary">{loan.interest}%</p>
+          
+          <div className="grid grid-cols-3 gap-3 text-sm text-muted-foreground mb-4">
+            <div className="text-center p-2 bg-muted/50 rounded-lg">
+              <p className="font-medium text-foreground">{loan.interest}%</p>
+              <p className="text-xs">Interest</p>
+            </div>
+            <div className="text-center p-2 bg-muted/50 rounded-lg">
+              <p className="font-medium text-foreground">{loan.durationMonths}</p>
+              <p className="text-xs">Months</p>
+            </div>
+            <div className="text-center p-2 bg-muted/50 rounded-lg">
+              <p className="font-medium text-foreground">{loan.hasCollateral ? 'Yes' : 'No'}</p>
+              <p className="text-xs">Collateral</p>
+            </div>
           </div>
-        </div>
-        
-        <div className="flex justify-between text-sm text-muted-foreground mb-4">
-          <div>
-            <p>Duration</p>
-            <p className="font-medium text-foreground">{loan.durationMonths} months</p>
-          </div>
-          <div>
-            <p>Status</p>
-            <p className={`text-xs py-1 px-2 rounded-full font-medium ${statusClass}`}>
-              {loan.status.charAt(0).toUpperCase() + loan.status.slice(1)}
+          
+          {loan.createdAt && (
+            <p className="text-xs text-muted-foreground flex items-center">
+              <i className="ri-time-line mr-1"></i>
+              Created on {new Date(loan.createdAt).toLocaleDateString()}
             </p>
-          </div>
-          <div>
-            <p>Collateral</p>
-            <p className="font-medium text-foreground">{loan.hasCollateral ? 'Yes' : 'No'}</p>
-          </div>
-        </div>
+          )}
+        </CardContent>
         
-        {loan.createdAt && (
-          <p className="text-xs text-muted-foreground">
-            Created on {new Date(loan.createdAt).toLocaleDateString()}
-          </p>
+        {(showRepayButton && loan.status === 'active' && isBorrowing) && (
+          <CardFooter className="pt-0 pb-4 px-6">
+            <motion.div className="w-full">
+              <Button 
+                onClick={handleRepay} 
+                className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-md hover:shadow-lg transition-all duration-200" 
+                variant="default"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <i className="ri-money-dollar-circle-line mr-2"></i>
+                Make Repayment
+              </Button>
+            </motion.div>
+          </CardFooter>
         )}
-      </CardContent>
-      
-      {(showRepayButton && loan.status === 'active' && isBorrowing) && (
-        <CardFooter className="pt-0 pb-4 px-5">
-          <Button onClick={handleRepay} className="w-full" variant="outline">
-            Make Repayment
-          </Button>
-        </CardFooter>
-      )}
-    </Card>
+      </Card>
+    </motion.div>
   );
 }

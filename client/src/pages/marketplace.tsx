@@ -6,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MarketplaceLoanCard } from '@/components/shared/MarketplaceLoanCard';
 import { RequestLoanForm } from '@/components/forms/RequestLoanForm';
 import { OfferLoanForm } from '@/components/forms/OfferLoanForm';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SkeletonLoader } from '@/components/shared/SkeletonLoader';
 import { Loan } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
@@ -14,6 +16,17 @@ import { motion } from 'framer-motion';
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2
+    }
+  }
 };
 
 export default function Marketplace() {
@@ -70,59 +83,97 @@ export default function Marketplace() {
   };
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-6"
+        transition={{ duration: 0.6 }}
       >
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-          <h1 className="text-2xl font-bold mb-2 sm:mb-0">Loan Marketplace</h1>
-          <div className="flex space-x-3">
-            <Button onClick={() => setShowRequestForm(true)}>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+          <div>
+            <motion.h1 
+              className="text-3xl font-bold mb-2"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              Loan Marketplace
+            </motion.h1>
+            <motion.p 
+              className="text-muted-foreground"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              Discover lending and borrowing opportunities in the Bitcoin ecosystem
+            </motion.p>
+          </div>
+          <motion.div 
+            className="flex space-x-3 mt-4 sm:mt-0"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Button 
+              onClick={() => setShowRequestForm(true)}
+              className="btn-gradient-primary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
               <i className="ri-add-line mr-2"></i> Request Loan
             </Button>
-            <Button variant="outline" onClick={() => setShowOfferForm(true)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowOfferForm(true)}
+              className="border-accent text-accent hover:bg-accent/10"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
               <i className="ri-coin-line mr-2"></i> Offer Loan
             </Button>
-          </div>
+          </motion.div>
         </div>
 
-        <Card>
+        <Card className="border border-border rounded-xl overflow-hidden shadow-lg">
           <Tabs defaultValue="requests">
             <CardContent className="pt-6">
-              <TabsList className="grid grid-cols-2 mb-4">
-                <TabsTrigger value="requests">Loan Requests</TabsTrigger>
-                <TabsTrigger value="offers">Loan Offers</TabsTrigger>
+              <TabsList className="grid grid-cols-2 mb-6 bg-muted/50">
+                <TabsTrigger value="requests" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                  Loan Requests ({requestLoans.length})
+                </TabsTrigger>
+                <TabsTrigger value="offers" className="data-[state=active]:bg-accent data-[state=active]:text-white">
+                  Loan Offers ({offerLoans.length})
+                </TabsTrigger>
               </TabsList>
               
               <TabsContent value="requests">
                 {isLoading ? (
-                  <div className="py-12 text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-muted-foreground">Loading loan requests...</p>
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <SkeletonLoader type="card" count={6} />
                   </div>
                 ) : requestLoans.length === 0 ? (
-                  <div className="py-12 text-center">
-                    <p className="text-muted-foreground mb-4">No loan requests available</p>
-                    <Button onClick={() => setShowOfferForm(true)}>Create a Loan Offer</Button>
-                  </div>
+                  <EmptyState
+                    icon="inbox-line"
+                    title="No loan requests available"
+                    description="Be the first to create a loan request or check back later for new opportunities"
+                    action={{
+                      label: "Create Loan Request",
+                      onClick: () => setShowRequestForm(true)
+                    }}
+                  />
                 ) : (
                   <motion.div 
-                    className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                    className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                    variants={staggerContainer}
                     initial="hidden"
                     animate="visible"
-                    variants={{
-                      visible: {
-                        transition: {
-                          staggerChildren: 0.1
-                        }
-                      }
-                    }}
                   >
-                    {requestLoans.map((loan: Loan) => (
-                      <motion.div key={loan.id} variants={fadeIn}>
+                    {requestLoans.map((loan: Loan, index: number) => (
+                      <motion.div 
+                        key={loan.id} 
+                        variants={fadeIn}
+                        transition={{ delay: index * 0.1 }}
+                      >
                         <MarketplaceLoanCard 
                           loan={loan}
                           rating={4.5}
@@ -136,30 +187,32 @@ export default function Marketplace() {
               
               <TabsContent value="offers">
                 {isLoading ? (
-                  <div className="py-12 text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-muted-foreground">Loading loan offers...</p>
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <SkeletonLoader type="card" count={6} />
                   </div>
                 ) : offerLoans.length === 0 ? (
-                  <div className="py-12 text-center">
-                    <p className="text-muted-foreground mb-4">No loan offers available</p>
-                    <Button onClick={() => setShowRequestForm(true)}>Create a Loan Request</Button>
-                  </div>
+                  <EmptyState
+                    icon="store-2-line"
+                    title="No loan offers available"
+                    description="Be the first to create a loan offer or check back later for new opportunities"
+                    action={{
+                      label: "Create Loan Offer",
+                      onClick: () => setShowOfferForm(true)
+                    }}
+                  />
                 ) : (
                   <motion.div 
-                    className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                    className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                    variants={staggerContainer}
                     initial="hidden"
                     animate="visible"
-                    variants={{
-                      visible: {
-                        transition: {
-                          staggerChildren: 0.1
-                        }
-                      }
-                    }}
                   >
-                    {offerLoans.map((loan: Loan) => (
-                      <motion.div key={loan.id} variants={fadeIn}>
+                    {offerLoans.map((loan: Loan, index: number) => (
+                      <motion.div 
+                        key={loan.id} 
+                        variants={fadeIn}
+                        transition={{ delay: index * 0.1 }}
+                      >
                         <MarketplaceLoanCard 
                           loan={loan}
                           rating={4.7}
