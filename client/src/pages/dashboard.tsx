@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'wouter';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatBTC } from '@/lib/utils';
@@ -12,9 +12,24 @@ import { MarketplaceLoanCard } from '@/components/shared/MarketplaceLoanCard';
 import { useToast } from '@/hooks/use-toast';
 import { Loan } from '@shared/schema';
 
-const fadeIn = {
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2
+    }
+  }
+};
+
+const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 }
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.5 }
+  }
 };
 
 export default function Dashboard() {
@@ -56,37 +71,89 @@ export default function Dashboard() {
   const highlightedMarketplaceLoans = marketplaceLoans?.slice(0, 4) || [];
   
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto">
+    <motion.div 
+      className="p-4 md:p-6 max-w-7xl mx-auto"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       {/* Welcome Banner */}
-      <motion.div
-        className="mb-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Card className="overflow-hidden border-none bg-gradient-to-r from-primary/90 to-primary">
-          <CardContent className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between">
-            <div className="text-white mb-4 md:mb-0">
-              <h2 className="text-2xl md:text-3xl font-bold mb-2">Welcome to BitLend</h2>
-              <p className="text-white/80 max-w-md">Your secure platform for P2P Bitcoin lending. Browse the marketplace to find the perfect loan opportunities.</p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <Link href="/marketplace">
-                  <Button size="lg" variant="secondary" className="font-medium">
-                    <i className="ri-store-2-line mr-2"></i> Visit Marketplace
-                  </Button>
-                </Link>
-                <Link href="/wallet">
-                  <Button size="lg" variant="outline" className="bg-transparent border-white/30 text-white hover:bg-white/10 font-medium">
-                    <i className="ri-wallet-3-line mr-2"></i> Manage Wallet
-                  </Button>
-                </Link>
+      <motion.div variants={itemVariants} className="mb-8">
+        <Card className="overflow-hidden border-none shadow-strong">
+          <CardContent className="p-0">
+            <div className="relative bg-gradient-to-br from-primary via-primary/90 to-accent overflow-hidden">
+              {/* Background decorations */}
+              <div className="absolute inset-0">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-24 -translate-x-24"></div>
               </div>
-            </div>
-            <div className="flex-shrink-0">
-              <div className="w-24 h-24 md:w-32 md:h-32 relative flex items-center justify-center">
-                <div className="absolute w-full h-full rounded-full bg-white/10 animate-ping-slow"></div>
-                <div className="absolute w-20 h-20 md:w-28 md:h-28 rounded-full bg-white/20"></div>
-                <i className="ri-bit-coin-line text-white text-5xl md:text-6xl"></i>
+              
+              <div className="relative p-6 md:p-8 flex flex-col md:flex-row items-center justify-between">
+                <div className="text-white mb-6 md:mb-0 flex-1">
+                  <motion.h2 
+                    className="text-3xl md:text-4xl font-bold mb-3"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3, duration: 0.5 }}
+                  >
+                    Welcome to BitLend
+                  </motion.h2>
+                  <motion.p 
+                    className="text-white/90 max-w-md text-lg mb-6"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4, duration: 0.5 }}
+                  >
+                    Your secure platform for peer-to-peer Bitcoin lending. Discover opportunities in our marketplace.
+                  </motion.p>
+                  <motion.div 
+                    className="flex flex-wrap gap-4"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5, duration: 0.5 }}
+                  >
+                    <Link href="/marketplace">
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button size="lg" variant="secondary" className="font-semibold shadow-lg">
+                          <i className="ri-store-2-line mr-2"></i> Explore Marketplace
+                        </Button>
+                      </motion.div>
+                    </Link>
+                    <Link href="/wallet">
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button 
+                          size="lg" 
+                          variant="outline" 
+                          className="bg-white/10 border-white/30 text-white hover:bg-white/20 font-semibold backdrop-blur-sm"
+                        >
+                          <i className="ri-wallet-3-line mr-2"></i> Manage Wallet
+                        </Button>
+                      </motion.div>
+                    </Link>
+                  </motion.div>
+                </div>
+                
+                <motion.div 
+                  className="flex-shrink-0"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.6, duration: 0.5 }}
+                >
+                  <div className="relative">
+                    <motion.div 
+                      className="absolute inset-0 bg-white/20 rounded-full blur-2xl"
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    ></motion.div>
+                    <motion.div 
+                      className="relative w-32 h-32 md:w-40 md:h-40 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    >
+                      <i className="ri-bit-coin-line text-white text-6xl md:text-7xl"></i>
+                    </motion.div>
+                  </div>
+                </motion.div>
               </div>
             </div>
           </CardContent>
@@ -94,272 +161,343 @@ export default function Dashboard() {
       </motion.div>
       
       {/* Stats Overview */}
-      <motion.div 
-        className="mb-8"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          visible: {
-            transition: {
-              staggerChildren: 0.1,
-              delayChildren: 0.2
-            }
-          }
-        }}
-      >
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-          <h2 className="text-xl font-bold mb-2 md:mb-0">Your Portfolio Overview</h2>
-          <div className="flex items-center bg-muted rounded-full px-3 py-1.5 text-sm">
-            <span className="text-primary font-medium flex items-center">
-              <i className="ri-time-line mr-1.5"></i> Last updated: Just now
-            </span>
+      <motion.div variants={itemVariants} className="mb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Portfolio Overview</h2>
+            <p className="text-muted-foreground">Track your lending and borrowing activity</p>
           </div>
+          <motion.div 
+            className="flex items-center bg-muted/50 backdrop-blur-sm rounded-full px-4 py-2 text-sm mt-4 md:mt-0"
+            whileHover={{ scale: 1.05 }}
+          >
+            <motion.i 
+              className="ri-time-line mr-2 text-primary"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            ></motion.i>
+            <span className="font-medium">Last updated: Just now</span>
+          </motion.div>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <motion.div variants={fadeIn}>
-            <div className="stat-card-hover rounded-xl border bg-card p-5 shadow-sm">
-              <div className="flex justify-between mb-3">
-                <div className="flex items-center">
-                  <div className="mr-3 rounded-full bg-primary/10 p-2">
-                    <i className="ri-arrow-down-line text-xl text-primary"></i>
-                  </div>
-                  <h3 className="font-medium text-muted-foreground">Total Borrowed</h3>
-                </div>
-                <div className="rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success flex items-center">
-                  <i className="ri-arrow-up-line mr-0.5"></i> 12.3%
-                </div>
-              </div>
-              <div className="flex items-end justify-between">
-                <div className="flex items-end">
-                  <span className="text-2xl font-bold">{statsLoading ? "..." : formatBTC(stats?.totalBorrowed || 0)}</span>
-                </div>
-                <p className="text-xs text-muted-foreground">vs last month</p>
-              </div>
-            </div>
-          </motion.div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <MetricCard
+            title="Total Borrowed"
+            value={statsLoading ? "..." : formatBTC(stats?.totalBorrowed || 0)}
+            icon="arrow-down"
+            iconColor="primary"
+            changeValue="12.3%"
+            changeText="vs last month"
+            isPositive={true}
+            isBitcoin={true}
+            delay={0}
+          />
           
-          <motion.div variants={fadeIn}>
-            <div className="stat-card-hover rounded-xl border bg-card p-5 shadow-sm">
-              <div className="flex justify-between mb-3">
-                <div className="flex items-center">
-                  <div className="mr-3 rounded-full bg-accent/10 p-2">
-                    <i className="ri-arrow-up-line text-xl text-accent"></i>
-                  </div>
-                  <h3 className="font-medium text-muted-foreground">Total Lent</h3>
-                </div>
-                <div className="rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success flex items-center">
-                  <i className="ri-arrow-up-line mr-0.5"></i> 8.7%
-                </div>
-              </div>
-              <div className="flex items-end justify-between">
-                <div className="flex items-end">
-                  <span className="text-2xl font-bold">{statsLoading ? "..." : formatBTC(stats?.totalLent || 0)}</span>
-                </div>
-                <p className="text-xs text-muted-foreground">vs last month</p>
-              </div>
-            </div>
-          </motion.div>
+          <MetricCard
+            title="Total Lent"
+            value={statsLoading ? "..." : formatBTC(stats?.totalLent || 0)}
+            icon="arrow-up"
+            iconColor="accent"
+            changeValue="8.7%"
+            changeText="vs last month"
+            isPositive={true}
+            isBitcoin={true}
+            delay={0.1}
+          />
           
-          <motion.div variants={fadeIn}>
-            <div className="stat-card-hover rounded-xl border bg-card p-5 shadow-sm">
-              <div className="flex justify-between mb-3">
-                <div className="flex items-center">
-                  <div className="mr-3 rounded-full bg-success/10 p-2">
-                    <i className="ri-time-line text-xl text-success"></i>
-                  </div>
-                  <h3 className="font-medium text-muted-foreground">Active Loans</h3>
-                </div>
-                <div className="rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success flex items-center">
-                  <i className="ri-add-line mr-0.5"></i> 2
-                </div>
-              </div>
-              <div className="flex items-end justify-between">
-                <div className="flex items-end">
-                  <span className="text-2xl font-bold">{statsLoading ? "..." : stats?.activeLoans || 0}</span>
-                </div>
-                <p className="text-xs text-muted-foreground">new this week</p>
-              </div>
-            </div>
-          </motion.div>
+          <MetricCard
+            title="Active Loans"
+            value={statsLoading ? "..." : stats?.activeLoans || 0}
+            icon="time"
+            iconColor="success"
+            changeValue="2"
+            changeText="new this week"
+            isPositive={true}
+            delay={0.2}
+          />
           
-          <motion.div variants={fadeIn}>
-            <div className="stat-card-hover rounded-xl border bg-card p-5 shadow-sm">
-              <div className="flex justify-between mb-3">
-                <div className="flex items-center">
-                  <div className="mr-3 rounded-full bg-warning/10 p-2">
-                    <i className="ri-percent-line text-xl text-warning"></i>
-                  </div>
-                  <h3 className="font-medium text-muted-foreground">Interest Earned</h3>
-                </div>
-                <div className="rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success flex items-center">
-                  <i className="ri-arrow-up-line mr-0.5"></i> 5.2%
-                </div>
-              </div>
-              <div className="flex items-end justify-between">
-                <div className="flex items-end">
-                  <span className="text-2xl font-bold">{statsLoading ? "..." : formatBTC(stats?.interestEarned || 0)}</span>
-                </div>
-                <p className="text-xs text-muted-foreground">vs last month</p>
-              </div>
-            </div>
-          </motion.div>
+          <MetricCard
+            title="Interest Earned"
+            value={statsLoading ? "..." : formatBTC(stats?.interestEarned || 0)}
+            icon="percent"
+            iconColor="warning"
+            changeValue="5.2%"
+            changeText="vs last month"
+            isPositive={true}
+            isBitcoin={true}
+            delay={0.3}
+          />
         </div>
       </motion.div>
       
       {/* Your Active Loans */}
-      <motion.div 
-        className="mb-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-          <h2 className="text-xl font-bold mb-2 md:mb-0">Your Active Loans</h2>
+      <motion.div variants={itemVariants} className="mb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Active Loans</h2>
+            <p className="text-muted-foreground">Monitor your current lending positions</p>
+          </div>
           <Link href="/loans">
-            <Button variant="outline" className="text-primary hover:bg-primary/5 text-sm font-medium flex items-center">
-              View All Loans <i className="ri-arrow-right-line ml-1"></i>
-            </Button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button variant="outline" className="text-primary hover:bg-primary/5 font-medium">
+                View All Loans <i className="ri-arrow-right-line ml-2"></i>
+              </Button>
+            </motion.div>
           </Link>
         </div>
         
-        <Card className="border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-          {loansLoading ? (
-            <div className="p-8 text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
-              <p className="text-muted-foreground">Loading your active loans...</p>
-            </div>
-          ) : activeLoans && activeLoans.length === 0 ? (
-            <div className="p-8 text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
-                <i className="ri-inbox-line text-3xl text-muted-foreground"></i>
-              </div>
-              <h3 className="text-lg font-medium mb-2">No active loans</h3>
-              <p className="text-muted-foreground mb-4">You don't have any active loans at the moment.</p>
-              <Link href="/marketplace">
-                <Button className="bg-primary text-white hover:bg-primary/90">
-                  Browse Marketplace
-                </Button>
-              </Link>
-            </div>
-          ) : (
-            <LoanTable 
-              loans={activeLoans || []} 
-              onViewDetails={handleViewLoanDetails} 
-            />
-          )}
+        <Card className="border border-border/50 rounded-xl overflow-hidden shadow-soft hover:shadow-medium transition-all duration-300">
+          <AnimatePresence mode="wait">
+            {loansLoading ? (
+              <motion.div 
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="p-8 text-center"
+              >
+                <motion.div 
+                  className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                ></motion.div>
+                <p className="text-muted-foreground">Loading your active loans...</p>
+              </motion.div>
+            ) : activeLoans && activeLoans.length === 0 ? (
+              <motion.div 
+                key="empty"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="p-12 text-center"
+              >
+                <motion.div 
+                  className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted/50 mb-6"
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                >
+                  <i className="ri-inbox-line text-4xl text-muted-foreground"></i>
+                </motion.div>
+                <h3 className="text-xl font-semibold mb-3">No active loans</h3>
+                <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                  You don't have any active loans at the moment. Explore our marketplace to find opportunities.
+                </p>
+                <Link href="/marketplace">
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button className="btn-primary">
+                      <i className="ri-store-2-line mr-2"></i>
+                      Browse Marketplace
+                    </Button>
+                  </motion.div>
+                </Link>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="content"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <LoanTable 
+                  loans={activeLoans || []} 
+                  onViewDetails={handleViewLoanDetails} 
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </Card>
       </motion.div>
       
       {/* Recent Transactions and Loan Marketplace */}
       <motion.div 
-        className="grid grid-cols-1 md:grid-cols-3 gap-6"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          visible: {
-            transition: {
-              staggerChildren: 0.1,
-              delayChildren: 0.5
-            }
-          }
-        }}
+        className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+        variants={containerVariants}
       >
         {/* Recent Transactions */}
-        <motion.div className="md:col-span-1" variants={fadeIn}>
-          <Card className="h-full rounded-xl border shadow-sm hover:shadow-md transition-all duration-300">
+        <motion.div variants={itemVariants} className="lg:col-span-1">
+          <Card className="h-full rounded-xl border border-border/50 shadow-soft hover:shadow-medium transition-all duration-300">
             <CardContent className="p-6 h-full">
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center">
-                  <div className="bg-primary/10 p-1.5 rounded-md mr-2">
-                    <i className="ri-exchange-funds-line text-lg text-primary"></i>
+                  <motion.div 
+                    className="bg-primary/15 p-2 rounded-lg mr-3"
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                  >
+                    <i className="ri-exchange-funds-line text-xl text-primary"></i>
+                  </motion.div>
+                  <div>
+                    <h2 className="text-lg font-bold">Recent Activity</h2>
+                    <p className="text-sm text-muted-foreground">Latest transactions</p>
                   </div>
-                  <h2 className="text-lg font-bold">Recent Transactions</h2>
                 </div>
                 <Link href="/transactions">
-                  <Button variant="ghost" className="text-primary hover:bg-primary/5 text-sm font-medium">
-                    View All <i className="ri-arrow-right-line ml-1"></i>
-                  </Button>
+                  <motion.div whileHover={{ scale: 1.05 }}>
+                    <Button variant="ghost" className="text-primary hover:bg-primary/5 text-sm">
+                      View All <i className="ri-arrow-right-line ml-1"></i>
+                    </Button>
+                  </motion.div>
                 </Link>
               </div>
               
               <div className="space-y-4">
-                {transactionsLoading ? (
-                  <div className="text-center py-8">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
-                    <p className="text-muted-foreground">Loading transactions...</p>
-                  </div>
-                ) : recentTransactions.length === 0 ? (
-                  <div className="text-center py-8">
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-4">
-                      <i className="ri-file-list-line text-2xl text-muted-foreground"></i>
-                    </div>
-                    <h3 className="text-base font-medium mb-1">No transactions yet</h3>
-                    <p className="text-sm text-muted-foreground">Your transaction history will appear here</p>
-                  </div>
-                ) : (
-                  recentTransactions.map(transaction => (
-                    <TransactionItem key={transaction.id} transaction={transaction} />
-                  ))
-                )}
+                <AnimatePresence mode="wait">
+                  {transactionsLoading ? (
+                    <motion.div 
+                      key="loading"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="text-center py-8"
+                    >
+                      <motion.div 
+                        className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary mb-4"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      ></motion.div>
+                      <p className="text-muted-foreground text-sm">Loading transactions...</p>
+                    </motion.div>
+                  ) : recentTransactions.length === 0 ? (
+                    <motion.div 
+                      key="empty"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="text-center py-8"
+                    >
+                      <motion.div 
+                        className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted/50 mb-4"
+                        whileHover={{ scale: 1.1 }}
+                      >
+                        <i className="ri-file-list-line text-2xl text-muted-foreground"></i>
+                      </motion.div>
+                      <h3 className="font-medium mb-2">No transactions yet</h3>
+                      <p className="text-sm text-muted-foreground">Your activity will appear here</p>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="content"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="space-y-4"
+                    >
+                      {recentTransactions.map((transaction, index) => (
+                        <motion.div
+                          key={transaction.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1, duration: 0.3 }}
+                        >
+                          <TransactionItem transaction={transaction} />
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </CardContent>
           </Card>
         </motion.div>
         
         {/* Loan Marketplace */}
-        <motion.div className="md:col-span-2" variants={fadeIn}>
-          <Card className="h-full rounded-xl border shadow-sm hover:shadow-md transition-all duration-300">
+        <motion.div variants={itemVariants} className="lg:col-span-2">
+          <Card className="h-full rounded-xl border border-border/50 shadow-soft hover:shadow-medium transition-all duration-300">
             <CardContent className="p-6 h-full">
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center">
-                  <div className="bg-accent/10 p-1.5 rounded-md mr-2">
-                    <i className="ri-store-2-line text-lg text-accent"></i>
+                  <motion.div 
+                    className="bg-accent/15 p-2 rounded-lg mr-3"
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                  >
+                    <i className="ri-store-2-line text-xl text-accent"></i>
+                  </motion.div>
+                  <div>
+                    <h2 className="text-lg font-bold">Marketplace Highlights</h2>
+                    <p className="text-sm text-muted-foreground">Featured lending opportunities</p>
                   </div>
-                  <h2 className="text-lg font-bold">Marketplace Opportunities</h2>
                 </div>
                 <Link href="/marketplace">
-                  <Button variant="outline" className="text-accent border-accent/30 hover:bg-accent/5 text-sm font-medium">
-                    Browse All <i className="ri-arrow-right-line ml-1"></i>
-                  </Button>
+                  <motion.div whileHover={{ scale: 1.05 }}>
+                    <Button variant="outline" className="text-accent border-accent/30 hover:bg-accent/5">
+                      Browse All <i className="ri-arrow-right-line ml-1"></i>
+                    </Button>
+                  </motion.div>
                 </Link>
               </div>
               
-              {marketplaceLoading ? (
-                <div className="text-center py-16">
-                  <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-accent mb-4"></div>
-                  <p className="text-muted-foreground">Loading marketplace opportunities...</p>
-                </div>
-              ) : highlightedMarketplaceLoans.length === 0 ? (
-                <div className="text-center py-16">
-                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted mb-4">
-                    <i className="ri-store-2-line text-4xl text-muted-foreground"></i>
-                  </div>
-                  <h3 className="text-lg font-medium mb-2">No loans available</h3>
-                  <p className="text-muted-foreground mb-4 max-w-sm mx-auto">Check back later for new loan opportunities or visit the marketplace</p>
-                  <Link href="/marketplace">
-                    <Button className="bg-accent text-white hover:bg-accent/90">
-                      Visit Marketplace
-                    </Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {highlightedMarketplaceLoans.map(loan => (
-                    <div key={loan.id} className="marketplace-card-hover">
-                      <MarketplaceLoanCard 
-                        loan={loan}
-                        rating={4.5}
-                        onAccept={handleAcceptLoan}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
+              <AnimatePresence mode="wait">
+                {marketplaceLoading ? (
+                  <motion.div 
+                    key="loading"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-center py-16"
+                  >
+                    <motion.div 
+                      className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-accent mb-4"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    ></motion.div>
+                    <p className="text-muted-foreground">Loading opportunities...</p>
+                  </motion.div>
+                ) : highlightedMarketplaceLoans.length === 0 ? (
+                  <motion.div 
+                    key="empty"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="text-center py-16"
+                  >
+                    <motion.div 
+                      className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-muted/50 mb-6"
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                    >
+                      <i className="ri-store-2-line text-5xl text-muted-foreground"></i>
+                    </motion.div>
+                    <h3 className="text-xl font-semibold mb-3">No opportunities available</h3>
+                    <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                      Check back later for new lending opportunities or visit our full marketplace.
+                    </p>
+                    <Link href="/marketplace">
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button className="btn-accent">
+                          <i className="ri-store-2-line mr-2"></i>
+                          Visit Marketplace
+                        </Button>
+                      </motion.div>
+                    </Link>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="content"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="grid grid-cols-1 xl:grid-cols-2 gap-4"
+                  >
+                    {highlightedMarketplaceLoans.map((loan, index) => (
+                      <motion.div 
+                        key={loan.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1, duration: 0.3 }}
+                        whileHover={{ y: -5 }}
+                        className="card-hover"
+                      >
+                        <MarketplaceLoanCard 
+                          loan={loan}
+                          rating={4.5}
+                          onAccept={handleAcceptLoan}
+                        />
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </CardContent>
           </Card>
         </motion.div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
